@@ -1,29 +1,44 @@
 from django.shortcuts import render, redirect
 from book.models import Books
-from django.views.generic import View
+from django.views.generic import View, CreateView, ListView
+from django.urls import reverse_lazy
 from customer.forms import UserRegistrationForm, LoginForm, PasswordResetForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 
 # Create your views here.
-class CustomerIndex(View):
-    def get(self, request, *args, **kwargs):
-        qs = Books.objects.all()
-        return render(request, "customer_home.html", {"books": qs})
+class CustomerIndex(ListView):
+    model = Books
+    template_name = "customer_home.html"
+    context_object_name = "books"
 
 
-class SignUpView(View):
-    def get(self, request, *args, **kwargs):
-        form = UserRegistrationForm()
-        return render(request, "signup.html", {"form": form})
+# class CustomerIndex(View):
+#     def get(self, request, *args, **kwargs):
+#         qs = Books.objects.all()
+#         return render(request, "customer_home.html", {"books": qs})
 
-    def post(self, request, *args, **kwargs):
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("sign in")
-        else:
-            return render(request, "signup.html", {"form": form})
+
+class SignUpView(CreateView):
+    model = User
+    form_class = UserRegistrationForm
+    template_name = "signup.html"
+    success_url = reverse_lazy("sign in")
+
+
+# class SignUpView(View):
+#     def get(self, request, *args, **kwargs):
+#         form = UserRegistrationForm()
+#         return render(request, "signup.html", {"form": form})
+#
+#     def post(self, request, *args, **kwargs):
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("sign in")
+#         else:
+#             return render(request, "signup.html", {"form": form})
 
 
 class SignInView(View):
